@@ -23,6 +23,7 @@ io.on("connection", (socket) => {
       games[gameId] = {
         board: Array(9).fill(null),
         turn: "X",
+        starter: "X",
         winner: null
       };
     }
@@ -41,11 +42,10 @@ io.on("connection", (socket) => {
 
   socket.on("restart", (gameId) => {
     if (games[gameId]) {
-      games[gameId] = {
-        board: Array(9).fill(null),
-        turn: "X",
-        winner: null
-      };
+      games[gameId].starter = games[gameId].starter === "X" ? "O" : "X";
+      games[gameId].board = Array(9).fill(null);
+      games[gameId].turn = games[gameId].starter;
+      games[gameId].winner = null;
       io.to(gameId).emit("state", games[gameId]);
     }
   });
