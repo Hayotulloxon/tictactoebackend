@@ -12,6 +12,7 @@ const io = new Server(server, {
 
 const games = {};
 
+// Soddaroq status uchun
 app.get("/", (req, res) => {
   res.send("Tic Tac Toe backend ishlayapti!");
 });
@@ -40,16 +41,14 @@ io.on("connection", (socket) => {
     io.to(gameId).emit("state", game);
   });
 
-  // TUZATISH: restart da {gameId, turn} obyektini kutamiz va har ikki tomon uchun navbatni qaytarib yuboramiz
-  socket.on("restart", ({ gameId, turn }) => {
+  // NAVBAT HAR QAYTA O'YNASHDA ALMASHSIN!
+  socket.on("restart", ({ gameId }) => {
     if (games[gameId]) {
-      games[gameId].starter = turn || (games[gameId].starter === "X" ? "O" : "X");
+      games[gameId].starter = games[gameId].starter === "X" ? "O" : "X";
       games[gameId].board = Array(9).fill(null);
       games[gameId].turn = games[gameId].starter;
       games[gameId].winner = null;
-      // "restart" hodisasi: yangi turn ni yuboramiz (frontend ham shuni kutadi)
-      io.to(gameId).emit("restart", games[gameId].turn);
-      // Yangi holatni ham jo‘natamiz
+      io.to(gameId).emit("restart", games[gameId].turn); // Navbatni ikkala odamga yubor!
       io.to(gameId).emit("state", games[gameId]);
     }
   });
