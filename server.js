@@ -40,12 +40,16 @@ io.on("connection", (socket) => {
     io.to(gameId).emit("state", game);
   });
 
-  socket.on("restart", (gameId) => {
+  // TUZATISH: restart da {gameId, turn} obyektini kutamiz va har ikki tomon uchun navbatni qaytarib yuboramiz
+  socket.on("restart", ({ gameId, turn }) => {
     if (games[gameId]) {
-      games[gameId].starter = games[gameId].starter === "X" ? "O" : "X";
+      games[gameId].starter = turn || (games[gameId].starter === "X" ? "O" : "X");
       games[gameId].board = Array(9).fill(null);
       games[gameId].turn = games[gameId].starter;
       games[gameId].winner = null;
+      // "restart" hodisasi: yangi turn ni yuboramiz (frontend ham shuni kutadi)
+      io.to(gameId).emit("restart", games[gameId].turn);
+      // Yangi holatni ham jo‘natamiz
       io.to(gameId).emit("state", games[gameId]);
     }
   });
